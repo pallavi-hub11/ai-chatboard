@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI Query Solver</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Query Solver</h1>
+        <div id="chatbox"></div>
+        <input type="text" id="query-input" placeholder="Enter your query here..."/>
+        <button id="ask-btn">Ask</button>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const input = document.getElementById('query-input');
+        const button = document.getElementById('ask-btn');
+
+        button.addEventListener('click', () => {
+            const query = input.value.trim();
+            if (!query) return;
+            appendMessage("You", query);
+            input.value = '';
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendMessage("AI", data.answer);
+            })
+            .catch(err => {
+                appendMessage("AI", "Error connecting to server.");
+            });
+        });
+
+        function appendMessage(sender, message) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.innerHTML = <strong>${sender}:</strong> ${message};
+            chatbox.appendChild(msgDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
